@@ -57,12 +57,12 @@ else in this repo loads one of those two into a different agent.
 
 ## Install
 
-`<owner>/mobile-gesture-skill` is the GitHub repository this folder is published as.
+`ferakpeter/mobile-gesture-skill` is the GitHub repository this folder is published as.
 
 **Claude Code**, as two separate prompts:
 
 ```
-/plugin marketplace add <owner>/mobile-gesture-skill
+/plugin marketplace add ferakpeter/mobile-gesture-skill
 ```
 ```
 /plugin install mobile-gesture-design@mobile-gesture-design
@@ -71,14 +71,14 @@ else in this repo loads one of those two into a different agent.
 **Codex:**
 
 ```bash
-codex plugin marketplace add <owner>/mobile-gesture-skill
+codex plugin marketplace add ferakpeter/mobile-gesture-skill
 codex plugin add mobile-gesture-design@mobile-gesture-design
 ```
 
 **Gemini CLI:**
 
 ```bash
-gemini extensions install https://github.com/<owner>/mobile-gesture-skill
+gemini extensions install https://github.com/ferakpeter/mobile-gesture-skill
 ```
 
 **Any other agent:** copy [`AGENTS.md`](AGENTS.md) into your project, or ask your agent to install
