@@ -1,0 +1,19 @@
+{
+  "name": "mobile-gesture-design",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Mobile gesture design for AI agents: the operating system's conventions are the bar.",
+  "keywords": ["pi-package", "skills", "mobile", "gestures", "ios", "android"],
+  "author": "Peter Ferak",
+  "files": [
+    "AGENTS.md",
+    "skills/"
+  ],
+  "scripts": {
+    "build": "node scripts/build-adapters.js",
+    "test": "node scripts/build-adapters.js --check"
+  },
+  "pi": {
+    "skills": ["./skills"]
+  }
+}

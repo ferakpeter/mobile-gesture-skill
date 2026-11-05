@@ -1,0 +1,10 @@
+{
+  "name": "mobile-gesture-design",
+  "description": "Mobile touch and swipe interactions that follow iOS and Android conventions: a three-tier gesture model, deliberate conflict resolution, a visible control beside every gesture.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Peter Ferak"
+  },
+  "keywords": ["mobile", "gestures", "ios", "android", "accessibility"],
+  "skills": "skills/"
+}

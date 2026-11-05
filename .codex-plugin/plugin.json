@@ -1,0 +1,23 @@
+{
+  "name": "mobile-gesture-design",
+  "version": "1.0.0",
+  "description": "Mobile touch and swipe interactions that follow iOS and Android conventions: a three-tier gesture model, deliberate conflict resolution, a visible control beside every gesture.",
+  "author": {
+    "name": "Peter Ferak"
+  },
+  "keywords": ["mobile", "gestures", "ios", "android", "accessibility"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Mobile Gesture Design",
+    "shortDescription": "iOS and Android gesture conventions",
+    "longDescription": "Choose, specify, review and implement mobile touch and swipe interactions that keep system navigation, nested scrolling and accessibility intact.",
+    "developerName": "Peter Ferak",
+    "category": "Development",
+    "capabilities": ["Instructions"],
+    "defaultPrompt": [
+      "Design the swipe actions for this list.",
+      "Review these gestures for conflicts with system Back.",
+      "Which gesture should this screen use?"
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "mobile-gesture-design",
+  "description": "Mobile gesture design for AI agents: the operating system's conventions are the bar.",
+  "owner": {
+    "name": "Peter Ferak"
+  },
+  "plugins": [
+    {
+      "name": "mobile-gesture-design",
+      "description": "Design, review and implement mobile touch and swipe interactions that follow iOS and Android conventions.",
+      "source": "./skills",
+      "category": "development"
+    }
+  ]
+}
