@@ -19,12 +19,26 @@ When a task touches mobile touch, swipe, scroll or navigation on iOS or Android,
 7. **Make gestures accessible and discoverable.** Provide equivalent buttons, menus, keyboard and accessibility actions, and clear feedback.
 8. **Separate design convention from implementation detail.** A gesture may be a good UX pattern without requiring a custom recognizer.
 9. **Answer the question asked.** Apply only the checks relevant to the request; never expand a narrow question into an unnecessary full audit. Cite official documentation for every current or version-sensitive claim.
+10. **One gesture, one meaning per surface family.** The same gesture gives the same result on equivalent screens and carries at most one meaning on a screen. A new gesture never degrades one that already works on the same surface.
+11. **Feedback and timing are part of the gesture.** Respond on touch down, take hold and double-tap timing from the system rather than hardcoding it, and match haptic, visual and audio feedback to the moment and the importance of the event.
 
 ## The tier decides everything
 
 - **Tier 1, standard:** vertical scroll, horizontal paging, system Back, pull to refresh, drag and pan, pinch and zoom, long press. The default when the interaction exists, with the conventional behavior.
 - **Tier 2, contextual:** swipe to reveal row actions, swipe to dismiss, swipe between tabs, carousels, drag to reorder, swipe to complete, swipe down on a sheet. Needs contextual justification and a visible affordance or an alternate control.
 - **Tier 3, custom:** multi-finger shortcuts, custom or diagonal swipes, gesture sequences, edge gestures that compete with system navigation, hidden gestures, irreversible actions, custom physics. Needs a written reason, usability testing, accessibility alternatives and an explicit conflict analysis.
+
+## Grammar, timing and haptics
+
+- **Grammar:** tap = primary action or one step; hold = menu, pick up, mode switch or repeat while held, always signalled; double tap = expand or shortcut, never the only route; swipe = lateral dismiss, reveal or page; drag = direct manipulation. Tap steps, hold continues.
+- **Before adding a gesture** to a surface that has gestures, run an interference test: tap, double tap, hold, drag and swipe still behave as before. Gate gestures and controls on the state where they mean something; never accept a touch and ignore it.
+- **Timing:** read long-press, tap and double-tap timeouts and touch slop from the system (`ViewConfiguration`, Compose `LocalViewConfiguration`, iOS recognizer defaults). The official docs state no numbers, so any other duration is a starting point for usability testing. Show pressed on touch down.
+- **Timing bands, not numbers:** right away (pressed state, finger tracking, event feedback; never delayed), with intent (the system long-press timeout; arms a hold, pickup, menu or mode), short wait (the system double-tap window; hold-to-repeat rhythm; how long a hint stays readable), long wait (clearly longer than long press; hold to confirm a consequential action, with visible progress, cancel by lifting and a no-hold alternative). Show an indicator for results only once the wait is noticeable.
+- **Hold sequence:** touch down shows pressed; movement past slop before the threshold is a scroll; at the system long-press timeout the item arms with one haptic and a visual lift in the same frame; it then tracks the finger; one tick per slot or threshold crossing; release commits with a confirm or cancels back.
+- **Haptics:** predefined constants first (Android `DRAG_START`, `SEGMENT_TICK`, `GESTURE_THRESHOLD_ACTIVATE`, `CONFIRM`, `REJECT`; iOS impact, selection and notification generators). One per perceptual event, scaled to frequency and importance, in sync with the visual, none on plain taps or scrolling, never the only signal, and the task works with haptics off.
+- **Other feedback:** toast for a changed value, persistent errors, self-dismissing confirmations, sound only for committed state changes and never on swipes, staged decoration, active shown brighter rather than the rest greyed.
+- **Scroll chrome:** collapse in proportion to scroll, same animation at both ends, reset to top on filter change, restore position on navigation, scrollable empty states, no automatic keyboard.
+- **Confirmation** is never a repeat of the trigger gesture. Primary controls sit in the lower part of the screen.
 
 Back starts at the leading edge on iOS and iPadOS (commonly left in LTR), and at either edge in Android gesture navigation. Bottom-edge gestures are system navigation.
 
@@ -41,3 +55,5 @@ Back starts at the leading edge on iOS and iPadOS (commonly left in LTR), and at
 - Meaning carried by colour, haptics or motion alone.
 - An assumed framework, or a framework abstraction trusted to cover every OS version and edge case.
 - The convention model rewritten silently from a single secondary source.
+- A gesture with more than one meaning on a screen, or a new gesture that degrades an existing one.
+- A hardcoded long-press, double-tap or touch-slop value; a haptic per frame, scroll step or plain tap; sound on frequent gestures; a confirmation that repeats its trigger gesture.

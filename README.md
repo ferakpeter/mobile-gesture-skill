@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.0.0-111111?style=flat-square" alt="Version 1.0.0">
+  <img src="https://img.shields.io/badge/version-1.1.0-111111?style=flat-square" alt="Version 1.1.0">
   <img src="https://img.shields.io/badge/platforms-iOS%20%7C%20Android-111111?style=flat-square" alt="iOS and Android">
   <img src="https://img.shields.io/badge/works%20with-30%2B%20agents-111111?style=flat-square" alt="Works with 30+ agents">
 </p>
@@ -44,6 +44,11 @@ Every proposed gesture lands in one tier before anything is designed:
 Then a fixed run: the goal, the surface, the simplest familiar gesture, what the platform
 reserves, what competes for the touch, recognition, feedback, recovery, alternatives, real-device
 tests, and official sources for every version-sensitive claim.
+
+Each object gets one gesture grammar (tap steps, hold continues or arms, double tap expands, swipe
+moves sideways, drag manipulates) and a feedback budget: hold and double-tap timing read from the
+system, never hardcoded, and haptics chosen per moment (pickup, slot tick, threshold, confirm,
+reject) with the platform's predefined constants.
 
 Never on the table: an essential action that is gesture-only, overriding system navigation, a
 vertical scroll hijacked by a diagonal touch, and thresholds the platform docs never gave.

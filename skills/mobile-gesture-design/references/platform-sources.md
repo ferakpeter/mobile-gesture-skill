@@ -1,6 +1,6 @@
 # Official platform documentation
 
-Last checked: 2026-11-05
+Last checked: 2026-11-05. Android timing and haptics pages added and read 2026-11-16; the Apple timing and haptics pages added that day were not readable and are unverified.
 
 Use these as the primary research starting points. Re-open them when making current or version-sensitive recommendations; do not assume this snapshot remains current indefinitely.
 
@@ -20,6 +20,12 @@ Use these as the primary research starting points. Re-open them when making curr
   - Interactive pop behavior initiated by panning in the content area; verify availability and applicability for the target SDK before relying on it.
 - [Designing for iOS](https://developer.apple.com/design/human-interface-guidelines/designing-for-ios)
   - Platform-specific interaction and one-handed reachability considerations.
+- [UILongPressGestureRecognizer](https://developer.apple.com/documentation/uikit/uilongpressgesturerecognizer)
+  - `minimumPressDuration` and `allowableMovement` defaults. Not verified on the 2026-11-16 check: the page did not render for the fetch tool.
+- [Human Interface Guidelines — Playing haptics](https://developer.apple.com/design/human-interface-guidelines/playing-haptics)
+  - Haptic guidance. Not verified on the 2026-11-16 check, same reason.
+- [UIImpactFeedbackGenerator](https://developer.apple.com/documentation/uikit/uiimpactfeedbackgenerator), [UISelectionFeedbackGenerator](https://developer.apple.com/documentation/uikit/uiselectionfeedbackgenerator), [UINotificationFeedbackGenerator](https://developer.apple.com/documentation/uikit/uinotificationfeedbackgenerator)
+  - Impact, selection change and success, warning, error feedback. The purposes in section 3b are not verified on the 2026-11-16 check; re-read before relying on them.
 
 ## Android
 
@@ -43,6 +49,14 @@ Use these as the primary research starting points. Re-open them when making curr
   - Drag, fling, panning, snap-to-page, and overscroll behavior.
 - [WindowInsets.Type.systemGestures](https://developer.android.com/reference/android/view/WindowInsets.Type#systemGestures())
   - System gesture insets and exclusion API context.
+- [ViewConfiguration](https://developer.android.com/reference/android/view/ViewConfiguration)
+  - Long-press, tap and double-tap timeouts and touch slop, read at runtime. No numeric defaults are stated.
+- [ViewConfiguration — Compose](https://developer.android.com/reference/kotlin/androidx/compose/ui/platform/ViewConfiguration)
+  - `longPressTimeoutMillis`, `doubleTapTimeoutMillis`, `doubleTapMinTimeMillis`, `touchSlop`. No numeric defaults are stated.
+- [HapticFeedbackConstants](https://developer.android.com/reference/android/view/HapticFeedbackConstants)
+  - Predefined haptics with API levels: `LONG_PRESS` (3), `CLOCK_TICK` (21), `GESTURE_START`, `GESTURE_END`, `CONFIRM`, `REJECT` (30), `SEGMENT_TICK`, `SEGMENT_FREQUENT_TICK`, `DRAG_START`, `GESTURE_THRESHOLD_ACTIVATE`, `GESTURE_THRESHOLD_DEACTIVATE`, `TOGGLE_ON`, `TOGGLE_OFF` (34).
+- [Haptics principles](https://developer.android.com/develop/ui/views/haptics/haptics-principles)
+  - Less is more; scale strength to frequency and importance; co-design haptics with visual and audio; prefer predefined constants; choose no haptics over buzzy haptics.
 
 ## Research notes
 
@@ -51,4 +65,5 @@ Use these as the primary research starting points. Re-open them when making curr
 - A discrete swipe recognizer and a continuous pan/drag recognizer are not interchangeable. Choose based on whether the UI needs to track the finger.
 - Pull-to-refresh, swipe-to-dismiss, and swipe-to-reveal are common app patterns, not universal system navigation gestures. Their exact affordances and implementation vary by component and platform.
 - Horizontal swiping between tabs is contextual, not a universal expectation for every tab bar.
+- None of the Android pages above state numeric values for long-press, tap or double-tap timeouts or for touch slop. The skill therefore tells agents to read them at runtime. The only duration in the checked pages is the haptics principles note that a key click lasts about 10 to 20 ms and the actuator may ring 20 to 50 ms longer.
 - Android gesture exclusion should be narrowly scoped and justified; it is not a general method for reclaiming system navigation edges.

@@ -6,7 +6,8 @@ description: >-
   gesture model, deliberate conflict resolution with system navigation and nested scrolling, a
   visible control beside every gesture, and real-device tests that prove it. Use this whenever you
   plan mobile navigation, scrolling, swipe actions, gesture arbitration, platform conventions,
-  gesture accessibility or a cross-platform interaction system, in any stack (SwiftUI, UIKit,
+  gesture accessibility, hold and double-tap timing, haptic feedback or a cross-platform
+  interaction system, in any stack (SwiftUI, UIKit,
   Android Views, Jetpack Compose, React Native, Flutter, Kotlin Multiplatform, web views).
 ---
 
@@ -21,7 +22,7 @@ the app adapts to them, never the other way round.
 
 ## House rules
 
-These nine win over everything else in this skill.
+These eleven win over everything else in this skill.
 
 1. **Preserve platform conventions.** Users bring operating-system expectations into every app.
    Never casually override system navigation; system navigation always takes precedence over
@@ -44,6 +45,12 @@ These nine win over everything else in this skill.
 9. **Answer the question asked.** Apply only the checks relevant to the request; never expand a
    narrow question into an unnecessary full audit. Cite official documentation for every current
    or version-sensitive claim.
+10. **One gesture, one meaning per surface family.** The same gesture gives the same result on
+    equivalent screens and carries at most one meaning on a screen. A new gesture never degrades
+    one that already works on the same surface (section 3a).
+11. **Feedback and timing are part of the gesture.** Respond on touch down, take hold and
+    double-tap timing from the system rather than hardcoding it, and match haptic, visual and
+    audio feedback to the moment and the importance of the event (section 3b).
 
 ## 1. The tier decides everything
 
@@ -73,8 +80,9 @@ is. Unless the project specifies otherwise, this table is the design-system defa
   invites manipulation.
 - **Pinch and zoom:** for content where spatial magnification is expected: maps, images, diagrams,
   documents.
-- **Long press:** for contextual actions, selection or drag initiation only where the behavior is
-  appropriate and discoverable; never the only route to important functionality.
+- **Long press:** for contextual actions, selection, drag initiation, a mode switch or
+  hold-to-repeat, only where the behavior is appropriate, discoverable and visibly signalled
+  (section 3a); never the only route to important functionality.
 
 Tier 1 does not mean every app must implement every gesture. It means that when the corresponding
 interaction exists, it uses the conventional behavior.
@@ -145,6 +153,11 @@ interaction exists, it uses the conventional behavior.
 
 ### Cross-platform
 
+Place primary and frequently used controls in the lower part of the screen on both platforms, with
+filters and mode controls just above the bottom navigation; the top carries titles and content.
+A surface without touch, such as a terminal UI beside the app, keeps its own controls: parity is by
+capability, never by gesture.
+
 Keep content-level interactions consistent across iOS and Android wherever that does not conflict
 with native behavior. Let the operating system own system navigation. Adapt the edge behavior,
 system insets and navigation transitions per platform rather than forcing identical
@@ -180,6 +193,8 @@ precedence over artificial uniformity.
 Never use a discrete swipe recognizer when the user needs to control an object continuously.
 Never make a simple action feel like a complex drag.
 
+A scrub or range control stays inert until its range is known; dragging it never jumps to an end.
+
 ### Thresholds and commitment
 
 - Define a clear point at which an action becomes committed.
@@ -201,6 +216,7 @@ Never make a simple action feel like a complex drag.
   platform supports them.
 - No excessive animation or motion that delays the user's next action.
 - Cancellation visibly restores the original state.
+- Timing, haptics, sound and toast rules are in section 3b.
 
 ### Scroll behavior
 
@@ -210,6 +226,16 @@ Never make a simple action feel like a complex drag.
 - For nested scroll containers, define which container owns the gesture at each point and how the
   remaining scroll delta is handed off.
 - Horizontal paging never prevents users from vertically scrolling through the same screen.
+- Sticky or collapsing chrome (a header, a chip row, a filter row): collapse in proportion to the
+  scroll, never jump; animate the collapse and the expansion the same way at both ends of the
+  scroll; a collapsed row that carries state keeps showing it.
+- A tap on the title, the app mark or the status bar returns to the top where the platform does so.
+  A filter, sort or search change resets the list to the top. Tab and detail navigation restores
+  the previous scroll position and any typed text.
+- Empty and error states stay scrollable so pull to refresh works, and also offer a visible
+  refresh control.
+- Never open the keyboard automatically; focus a field when it is tapped. A search overlay replaces
+  the default content while the query is non-empty and releases it when the query is cleared.
 
 ### Swipe actions
 
@@ -219,6 +245,146 @@ Never make a simple action feel like a complex drag.
 - A visible alternative: an overflow menu, a toolbar action or an explicit button.
 - Consider undo or snackbar patterns for archive, delete and dismiss.
 - Never rely on colour alone to communicate action meaning.
+
+## 3a. Gesture grammar
+
+Tiers decide whether a gesture is allowed. The grammar decides what it means. Give every object a
+small, consistent vocabulary.
+
+| Gesture | Usual meaning | Rules |
+|---|---|---|
+| Tap | The primary action, or one discrete step | Responds at once. Never needs a hold or a second tap to work. |
+| Hold (long press) | Open a menu, pick an item up to drag or reorder, switch a mode, or repeat a step while held | Arms a deliberate action and so separates it from scroll and swipe. Always show that it armed. Never the only route to a function. |
+| Double tap | Expand, zoom, or a shortcut to something reachable another way | Never the only route. At most one meaning per screen. |
+| Swipe | Lateral movement: dismiss, reveal row actions, change page | On list rows and pagers, with one primary axis. |
+| Drag | Direct manipulation: seek, reposition, reorder | Tracks the finger one to one. |
+
+- **One meaning per gesture per surface family.** The same gesture gives the same result on
+  equivalent screens. Never give one gesture three meanings on one screen: a slightly missed
+  target must not trigger a different action.
+- **Tap steps, hold continues.** On one control a tap performs one step and a hold repeats it.
+  Hold-to-repeat starts after the system long-press timeout, shows the changing value, stops on
+  release and at the end of the content.
+- **Single tap plus double tap on one target** delays the single tap by the double-tap window on
+  most detectors. Prefer an immediate single tap and a double tap that adds to it, or give the
+  double tap its own target.
+- **Progressive taps** (the second tap escalates the first) only when each stage is visible, for
+  example two intensities of highlight, and each stage is also reachable another way.
+- **Hold-then-drag versus swipe.** A swipe moves at once. Hold-then-drag arms first. Use the armed
+  form for moving an item sideways or reordering inside a scrolling list, because an ordinary
+  scroll cannot trigger it.
+- **Adding a gesture to a surface that already has gestures or controls is a regression risk.**
+  List the existing gestures, add the new one, then run an interference test: tap, double tap,
+  hold, drag and swipe each still behave as before, child controls included. If one regresses,
+  give the new gesture its own surface or revert it.
+- **State gating.** A gesture or control exists only where it means something: nothing loaded,
+  nothing active, length unknown, section collapsed, offline. Hide it or show it visibly inert;
+  never accept the touch and ignore it silently.
+
+## 3b. Timing, haptics and feedback
+
+### Timing
+
+- The official pages checked state no numeric defaults for these thresholds
+  (`references/platform-sources.md`), so never invent one. Read the system value at runtime: on
+  Android `ViewConfiguration` (`getLongPressTimeout`, `getTapTimeout`, `getDoubleTapTimeout`,
+  `getScaledTouchSlop`) or, in Compose, `LocalViewConfiguration.current` (`longPressTimeoutMillis`,
+  `doubleTapTimeoutMillis`, `doubleTapMinTimeMillis`, `touchSlop`); on iOS the recognizer's own
+  defaults (`minimumPressDuration`, `allowableMovement`). Reading them keeps the app consistent
+  with the system and with the user's accessibility settings. Any other duration is a starting
+  point labelled for usability testing.
+- Show the pressed state on touch down. Never wait for the recognizer to decide first.
+- Fire the haptic, the visual change and any sound of one event together. Out-of-sync feedback
+  feels broken.
+- A double tap uses the system double-tap window, and both taps land close together.
+
+### Timing vocabulary
+
+Plan and review timing with four named bands instead of numbers. Each band is anchored to a system
+value or to what a person perceives, so it stays correct when the device or the user's settings
+change.
+
+| Band | How it feels | Anchored to | Use it for |
+|---|---|---|---|
+| Right away | Instant, no perceived wait, same frame as the touch | Nothing to wait for: never delay it | Pressed state, finger tracking during a drag, the visual and haptic of the event that just happened, cancel returning to origin |
+| With intent | A deliberate pause long enough to tell "I mean this" from a tap or the start of a scroll | The system long-press timeout and touch slop | Arming a hold, picking an item up, opening a menu, switching a mode |
+| Short wait | A beat the user notices and is not bothered by | The system double-tap window; a repeat cadence just after arming | Telling a double tap from a single tap, the first repeat and the rhythm of hold-to-repeat, how long a hint or a confirmation stays readable |
+| Long wait | A sustained, clearly longer hold that proves the user is sure | Clearly longer than the system long-press timeout, by a margin found in testing | Hold to confirm a consequential or hard-to-undo action |
+
+- **Right away is never negotiable.** A touch with no visible response in the same frame reads as a
+  broken app. Everything that waits is waiting for intent, not for the app.
+- **With intent is the system value.** Never shorten it to feel snappier and never lengthen it to
+  prevent accidents. Too short arms during a scroll; too long reads as a missed touch. Users with
+  motor difficulties may lengthen it in system settings, and the app inherits that by reading it.
+- **Short wait stays short.** If a single tap on the same target is delayed by the double-tap
+  window, the delay is felt on every tap. Prefer a target where the single tap does not wait.
+- **Long wait needs a visible progress.** A fill, a ring or a growing outline that starts at touch
+  down, a cancel by lifting or sliding away, a haptic at completion, and an alternative that needs
+  no sustained hold (a button and a dialog) for users who cannot hold. Use it for consequence, never
+  for ordinary actions.
+- **Waiting for results is a separate clock.** Show nothing for an operation that finishes
+  effectively at once, show an indicator once the wait is noticeable, and show real progress and a
+  way out once it is long. Never flash an indicator for a fast result.
+- **Name the band, not a number.** A design says "arms with intent, repeats after a short wait,
+  confirms after a long wait". If a number is needed, it is a starting point labelled for usability
+  testing on real devices and with accessibility settings changed.
+
+### The hold sequence
+
+Use this timeline for any hold, from a context menu to picking a list item up and dragging it
+sideways.
+
+| Step | What happens | Feedback |
+|---|---|---|
+| 1. Touch down | Pressed state | Visual only, immediate |
+| 2. Movement beyond touch slop before the threshold | The touch is a scroll or swipe; the hold never arms | None |
+| 3. System long-press timeout reached | The hold arms; the item is picked up | One haptic and a visual lift (elevation, scale) in the same frame |
+| 4. Armed | The item follows the finger one to one; movement no longer cancels. Auto-scroll near an edge only where the list scrolls | Visual tracking |
+| 5. Crossing a slot, snap point or action threshold | The target changes, or the action becomes eligible | One tick per crossing; a different one for activate and for deactivate |
+| 6. Release | Commit, or cancel by animating back | Confirm on commit; none on cancel. Undo for a consequential result |
+| 7. Interruption (system gesture, call, rotation) | Cancel to the origin | Visual only |
+
+### Haptics by action
+
+Prefer the platform's predefined constants and generators over custom vibration patterns.
+
+| Moment | Android (`HapticFeedbackConstants`, API level) | iOS (UIKit feedback generators) |
+|---|---|---|
+| Hold arms and an item is picked up | `DRAG_START` (34); `LONG_PRESS` (3) below that | `UIImpactFeedbackGenerator` |
+| Hold arms and a menu opens | `LONG_PRESS` (3); the native menu may already provide it | the native menu already provides it |
+| Passing a discrete slot, step or detent while dragging | `SEGMENT_TICK` (34); `SEGMENT_FREQUENT_TICK` (34) when there are many; `CLOCK_TICK` (21) below that | `UISelectionFeedbackGenerator` |
+| Swipe or drag crosses the commit threshold | `GESTURE_THRESHOLD_ACTIVATE` (34) | `UIImpactFeedbackGenerator`, light |
+| Swipe or drag returns under the threshold | `GESTURE_THRESHOLD_DEACTIVATE` (34) | `UISelectionFeedbackGenerator` |
+| Release commits an action | `CONFIRM` (30) | `UINotificationFeedbackGenerator`, success |
+| Action rejected or failed | `REJECT` (30) | `UINotificationFeedbackGenerator`, error |
+| Toggle changes | `TOGGLE_ON` or `TOGGLE_OFF` (34) | `UISelectionFeedbackGenerator` |
+| Hold-to-repeat step | at most a very soft tick per step; one reject at the boundary | at most a selection tick; one error at the boundary |
+| Pull to refresh triggers | `CONFIRM` (30), once at the threshold | `UIImpactFeedbackGenerator` |
+| Plain tap, scroll, fling, native control | none; the component handles it | none |
+
+The Android constants and API levels come from the Android reference. The iOS column maps to the
+generators by purpose and was not re-read from Apple's pages on the last check
+(`references/platform-sources.md`); verify it before relying on it.
+
+- Scale strength to frequency and importance: very subtle for frequent events, stronger for rare
+  and important ones.
+- One haptic per perceptual event, never per frame, per pixel or per scroll step. Rate-limit ticks.
+- Less is more. When the choice is a buzzy haptic or none, choose none.
+- Native components already supply their own feedback; never stack a second one on top.
+- Haptics can be off or unsupported. The task is complete without them, and the system setting is
+  respected.
+
+### Visual, sound and toast feedback
+
+- A changed value (speed, volume, position) shows a transient toast or inline readout near the
+  control.
+- An error persists until dismissed or resolved. A confirmation or a hint dismisses itself.
+- Sound only for a committed state change the user would expect to hear, never for frequent
+  gestures such as swipes or scrolls, and never as the only signal.
+- Decoration such as a glow or a pulse works in stages: a dim stage first, the full effect for the
+  stronger state. Too much is a defect.
+- Active reads as brighter and more saturated. Greying out the rest, or the selected item, reads
+  as disabled. One indicator per state; remove duplicate indicators and duplicate information.
 
 ## 4. Accessibility and discoverability
 
@@ -234,6 +400,11 @@ Never make a simple action feel like a complex drag.
 - Make hidden swipe actions discoverable: affordances, onboarding only when needed, or a visible
   alternate action.
 - No accidental activation; undo for meaningful destructive operations.
+- A confirmation is never a repeat of the triggering gesture. Use a dialog or an undo.
+- Onboarding shows the real gestures briefly and says where to find them again, as a hint that
+  dismisses itself, never a form asking for preferences the app can learn from use. Keep any
+  in-app gesture guide in step with the code.
+- Hold and double-tap timing follow the system value, so assistive timing settings take effect.
 
 ## 5. Implementation
 
@@ -304,7 +475,8 @@ than adopting a role or persona.
 2. **Identify the object and the interaction surface.** The whole screen, a scroll container, a
    row, a card, a sheet or a media object?
 3. **Choose the simplest familiar gesture.** Tier 1 first, then Tier 2. Tier 3 only with a written
-   justification (section 1).
+   justification (section 1). Fit it into the object's grammar and run the interference test
+   (section 3a).
 4. **Check platform behavior.** Does iOS or Android reserve the relevant edge or gesture region
    (section 2)?
 5. **Check competing gestures.** Nested vertical and horizontal scroll, carousels inside feeds,
@@ -314,9 +486,10 @@ than adopting a role or persona.
    When it cannot be resolved cleanly, change the interaction design.
 6. **Define recognition.** Direction, activation threshold, velocity behavior, cancellation, snap
    points and completion criteria, only as needed. No arbitrary numeric threshold unless platform
-   conventions or testing support it (section 3).
+   conventions or testing support it (section 3). Hold and double-tap timing come from the system
+   (section 3b).
 7. **Define feedback.** What the user sees during the gesture, at the commit point, on
-   cancellation and after completion.
+   cancellation and after completion, with the haptic, sound and toast chosen per section 3b.
 8. **Define recovery.** For a destructive or consequential action: undo, confirmation or a
    reversible state.
 9. **Define alternatives.** The same task completes with a visible control and with assistive
@@ -338,6 +511,8 @@ than adopting a role or persona.
        framework (section 5).
     9. **Test cases:** concise acceptance criteria.
     10. **Sources and verification date:** official links for current claims.
+    11. **Verification:** what was tested on a real device, or "not tested on a device" when none
+        was available.
 
     A broad interaction inventory groups the results by Tier 1, Tier 2 and Tier 3. A code request
     is implemented only once the interaction model and the conflict behavior are clear.
@@ -358,6 +533,10 @@ than adopting a role or persona.
 - Does the same gesture mean the same thing across equivalent screens?
 - Are RTL layouts handled correctly?
 - Are system bars, cutouts, safe areas and gesture insets respected?
+- Does it add a second meaning to a gesture already used on this surface, or degrade one?
+- Does every gesture and control exist only in the states where it means something?
+- Do hold and double tap read the system timing values?
+- Does each haptic fire once, at the moment of the event, scaled to how often it happens?
 
 ### Before calling it done
 
@@ -373,6 +552,14 @@ than adopting a role or persona.
 - RTL behavior is correct where supported.
 - VoiceOver and TalkBack expose equivalent actions.
 - Reduced motion and the other accessibility settings are respected.
+- Interference test passed: tap, double tap, hold, drag and swipe still work on every control that
+  shares the surface.
+- Back never discards unsaved edits and returns to where the user came from.
+- List state and typed text survive navigation; empty and error states scroll and offer a visible
+  refresh control.
+- Swipe actions update the screen they were performed on, detail views included.
+- Haptics are in sync with the visual, and the task is complete with haptics off.
+- No confirmation repeats its own trigger gesture.
 - Tests cover representative device sizes and OS versions.
 - **Your hands:** real-device testing confirms the behavior; simulator-only verification is not
   enough for final sign-off.
@@ -396,6 +583,14 @@ than adopting a role or persona.
 - An assumed framework, or a framework abstraction trusted to cover every OS version and edge
   case.
 - The convention model rewritten silently from a single secondary source.
+- A gesture with more than one meaning on a screen, or a new gesture that degrades an existing one.
+- A hardcoded long-press, double-tap or touch-slop value instead of the system one.
+- A haptic per frame, per scroll step or per plain tap; a haptic as the only signal; haptic or
+  sound out of sync with the visual.
+- Sound on frequent gestures such as swipes.
+- A confirmation that repeats the gesture that triggered it.
+- A control or gesture that accepts touch and silently does nothing.
+- Greying out used to mean selected.
 
 ## References
 
